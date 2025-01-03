@@ -1,70 +1,107 @@
 import { useRef, useEffect, useState } from "react";
 
-const TextCanvas = ({ text = "Hello World", fontSize = 30 }) => {
+const TextCanvas = ({
+  texts = ["Hello World", "Welcome"],
+  fontSize = 30,
+  textcolor = "black",
+}) => {
   const canvasRef = useRef(null);
-  const [canvasWidth, setCanvasWidth] = useState(200); // Default width
-  const [character, setCharacter] = useState([]);
-  const [typeStatus, setTypeStatus] = useState(false);
+  const [canvasWidth, setCanvasWidth] = useState(200);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return; // Guard clause
+    if (!canvas) return;
 
     const context = canvas.getContext("2d");
     context.font = `${fontSize}px Arial`;
 
-    // Calculate and set canvas width
-    const textWidth = Math.max(
+    // Calculate maximum width needed for all texts
+    const maxWidth = Math.max(
       200,
-      context.measureText(text).width + text.length * 2
+      ...texts.map((text) => context.measureText(text).width + text.length * 2)
     );
-    setCanvasWidth(textWidth);
+    setCanvasWidth(maxWidth);
 
     const timeouts = [];
+    let currentTextIndex = 0;
 
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    context.font = `${fontSize}px Arial`;
-    context.fillStyle = "white";
+    const animateText = () => {
+      const currentText = texts[currentTextIndex];
 
-    let currentX = 0;
-
-    text.split("").forEach((char, index) => {
-      const timeout = setTimeout(() => {
-        context.fillText(char, currentX, 50);
-        setCharacter((prev) => [...prev, char]);
-        currentX += context.measureText(char).width + 2;
-        if (index === text.length - 1) {
-          setTypeStatus(true);
+      // Type out the text
+      const typeText = () => {
+        for (let i = 0; i <= currentText.length; i++) {
+          const timeout = setTimeout(() => {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.fillStyle = textcolor;
+            context.fillText(currentText.substring(0, i), 0, 50);
+          }, i * 150);
+          timeouts.push(timeout);
         }
-      }, index * 150);
-      timeouts.push(timeout);
-    });
 
-    return () => {
-      timeouts.forEach((timeout) => clearTimeout(timeout));
+        // After typing, wait a bit before clearing
+        const pauseTimeout = setTimeout(() => {
+          clearText();
+        }, currentText.length * 150 + 1000);
+        timeouts.push(pauseTimeout);
+      };
+
+      // Clear the text character by character
+      const clearText = () => {
+        for (let i = currentText.length; i >= 0; i--) {
+          const timeout = setTimeout(() => {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.fillStyle = textcolor;
+            context.fillText(currentText.substring(0, i), 0, 50);
+          }, (currentText.length - i) * 150);
+          timeouts.push(timeout);
+        }
+
+        // After clearing, move to next text
+        const nextTimeout = setTimeout(() => {
+          currentTextIndex = (currentTextIndex + 1) % texts.length;
+          animateText();
+        }, currentText.length * 150 + 500);
+        timeouts.push(nextTimeout);
+      };
+
+      typeText();
     };
-  }, [text, fontSize]);
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return; // Guard clause
-    const context = canvas.getContext("2d");
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    context.font = `${fontSize}px Arial`;
-    context.fillStyle = "white";
+    animateText(); //call function to start typing
 
-    let currentX = 0;
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    character.forEach((ch, index) => {
-      const timeout = setTimeout(() => {
-        context.fillText(character.join(""), currentX, 50);
-        currentX += context.measureText(character).width + 2;
-        setCharacter((prevChars) => prevChars.filter((chr) => chr !== ch));
-      }, index * 150);
-    });
-  }, [typeStatus, text]);
+    // Cleanup function
+    return () => timeouts.forEach((timeout) => clearTimeout(timeout));
+  }, [texts, fontSize]);
 
-  return <canvas ref={canvasRef} width={canvasWidth} height={100} />;
+  return (
+    <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
+      <canvas ref={canvasRef} width={canvasWidth} height={100} style={{}} />
+      {/* <span
+        style={{
+          fontSize: "25px",
+          color: textcolor,
+          position: "absolute",
+          marginLeft: "",
+          animation: "blink 1s step-end infinite",
+        }}
+      >
+        |
+      </span>
+      <style>
+        {`
+          @keyframes blink {
+            0%, 100% {
+              opacity: 1;
+            }
+            50% {
+              opacity: 0;
+            }
+          }
+        `}
+      </style> */}
+    </div>
+  );
 };
 
 export default TextCanvas;
