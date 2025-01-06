@@ -20,3 +20,6 @@ function FunctionalComponent() {
 export default FunctionalComponent;
 
 ```
+
+## License: 
+Licenses under MIT License.
