@@ -3,10 +3,11 @@ import TextCanvas from "./TextCanvas";
 function App() {
   return (
     <TextCanvas
-      texts={["Typing Text", "Is being animated"]}
+      texts={["Hi...", "Hello...", "Hi There.."]}
       textcolor="white"
-      displayCaret={0}
       fontSize={20}
+      displayCaret={1}
+      caretChar={"|"}
     />
   );
 }
