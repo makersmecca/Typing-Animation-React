@@ -1,3 +1,4 @@
+# Typing-Animation-React
 A simple React Typing animation component that takes in certain props for customization.
 
 Sample usage:
