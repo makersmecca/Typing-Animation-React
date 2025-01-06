@@ -2,8 +2,7 @@
 A simple React Typing animation component that takes in certain props for customization.
 
 ## Sample usage:
-Navigate to "src/Components"
-Copy the "TextCanvas.jsx" component to your src folder. Then use the component in your components like this
+Navigate to "src/TextCanvas.jsx", and copy the "TextCanvas.jsx" component to your src folder. Then use the component in your components like this
 
 ```
 import TextCanvas from "./TextCanvas";
