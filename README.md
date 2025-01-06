@@ -27,4 +27,4 @@ Feel free to create a new PR for updates or fixes. Note that all PR may not be m
 ## License: 
 Licenses under MIT License.
 ##
-<img align:center src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/footers/gray0_ctp_on_line.svg?sanitize=true"/>
+<img align="center" align:center src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/footers/gray0_ctp_on_line.svg?sanitize=true"/>
