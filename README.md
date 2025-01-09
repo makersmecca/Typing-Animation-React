@@ -31,7 +31,19 @@ export default FunctionalComponent;
 
 ## Contribute:
 
-Feel free to create a new PR for updates or fixes. Note that all PR may not be merged.
+Feel free to create a new PR for updates or fixes.
+
+### Note that all PRs may not be merged.
+
+The general guidelines I'll follow are:
+
+- Does it make developing Typing-Animation easier?
+- Does it help improve perfomance and efficiency?
+- Does it fix a bug?
+- Does it break anything?
+- Does it stick to the original goal of Typing-Animation (Simple, easy to use and ligh-weight)
+- Does it reduce the build size?
+- Is it necessary?
 
 ## License:
 
