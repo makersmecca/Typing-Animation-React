@@ -109,7 +109,7 @@ const TextCanvas = ({
   ]);
 
   return (
-    <div style={{ display: "flex", position: "relative" }}>
+    <span style={{ display: "flex", position: "relative", width: canvasWidth }}>
       <canvas
         ref={canvasRef}
         width={canvasWidth}
@@ -148,7 +148,7 @@ const TextCanvas = ({
           </style>
         </>
       )}
-    </div>
+    </span>
   );
 };
 
