@@ -1,11 +1,17 @@
 import { useRef, useEffect, useState } from "react";
 
 const TextCanvas = ({
-  texts = ["Hello World", "Welcome"],
+  texts = ["Hello"],
   fontSize = 30,
   textcolor = "black",
   caretChar = "|",
   displayCaret = true,
+  speeds = {
+    type: 150,
+    pause: 1500,
+    clear: 150,
+    delay: 500,
+  },
 }) => {
   const canvasRef = useRef(null);
   const caretRef = useRef(null);
@@ -48,13 +54,13 @@ const TextCanvas = ({
               const caretPosition = context.measureText(displayText).width;
               caret.style.left = `${caretPosition}px`;
             }
-          }, i * 150);
+          }, i * speeds.type);
           timeouts.push(timeout);
         }
 
         const pauseTimeout = setTimeout(() => {
           clearText();
-        }, currentText.length * 150 + 1500);
+        }, currentText.length * speeds.type + speeds.pause);
         timeouts.push(pauseTimeout);
       };
 
@@ -71,14 +77,14 @@ const TextCanvas = ({
               const caretPosition = context.measureText(displayText).width;
               caret.style.left = `${caretPosition}px`;
             }
-          }, (currentText.length - i) * 150);
+          }, (currentText.length - i) * speeds.clear);
           timeouts.push(timeout);
         }
 
         const nextTimeout = setTimeout(() => {
           currentTextIndex = (currentTextIndex + 1) % texts.length;
           animateText();
-        }, currentText.length * 150 + 500);
+        }, currentText.length * speeds.clear + speeds.delay);
         timeouts.push(nextTimeout);
       };
 
