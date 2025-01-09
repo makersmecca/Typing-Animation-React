@@ -16,34 +16,45 @@ const TextCanvas = ({
   const canvasRef = useRef(null);
   const caretRef = useRef(null);
   const [canvasWidth, setCanvasWidth] = useState(0);
-  const animationRef = useRef({ timeouts: [] });
+  const animationState = useRef({
+    timeouts: [],
+    currentTextIndex: 0,
+    isAnimating: false,
+  });
+
+  const [isTyping, setIsTyping] = useState(false);
+
+  // Helper function to clear all timeouts
+  const clearAllTimeouts = () => {
+    animationState.current.timeouts.forEach((timeout) => clearTimeout(timeout));
+    animationState.current.timeouts = [];
+  };
 
   useEffect(() => {
-    console.log(fontSize);
+    // console.log(fontSize);
     const canvas = canvasRef.current;
     const caret = displayCaret ? caretRef.current : null;
     if (!canvas) return;
 
     const context = canvas.getContext("2d");
     context.font = `${Math.floor(fontSize)}px Arial`;
-    console.log(context.font);
+    // console.log(context.font);
 
     // Calculate maximum width needed for all texts
     const maxWidth = Math.max(
       200,
-      ...texts.map((text) => context.measureText(text).width + text.length * 2)
+      ...texts.map((text) => context.measureText(text).width + text.length)
     );
     setCanvasWidth(maxWidth);
 
-    let currentTextIndex = 0;
-    const timeouts = animationRef.current.timeouts;
-
     const animateText = () => {
-      const currentText = texts[currentTextIndex];
+      clearAllTimeouts();
+      const currentText = texts[animationState.current.currentTextIndex];
 
       const typeText = () => {
         for (let i = 0; i <= currentText.length; i++) {
           const timeout = setTimeout(() => {
+            setIsTyping(true);
             context.clearRect(0, 0, canvas.width, canvas.height);
             context.fillStyle = textcolor;
             const displayText = currentText.substring(0, i);
@@ -55,18 +66,20 @@ const TextCanvas = ({
               caret.style.left = `${caretPosition}px`;
             }
           }, i * speeds.type);
-          timeouts.push(timeout);
+          animationState.current.timeouts.push(timeout);
         }
 
         const pauseTimeout = setTimeout(() => {
+          setIsTyping(false);
           clearText();
         }, currentText.length * speeds.type + speeds.pause);
-        timeouts.push(pauseTimeout);
+        animationState.current.timeouts.push(pauseTimeout);
       };
 
       const clearText = () => {
         for (let i = currentText.length; i >= 0; i--) {
           const timeout = setTimeout(() => {
+            setIsTyping(true);
             context.clearRect(0, 0, canvas.width, canvas.height);
             context.fillStyle = textcolor;
             const displayText = currentText.substring(0, i);
@@ -78,38 +91,42 @@ const TextCanvas = ({
               caret.style.left = `${caretPosition}px`;
             }
           }, (currentText.length - i) * speeds.clear);
-          timeouts.push(timeout);
+          animationState.current.timeouts.push(timeout);
         }
 
         const nextTimeout = setTimeout(() => {
-          currentTextIndex = (currentTextIndex + 1) % texts.length;
+          setIsTyping(false);
+          animationState.current.currentTextIndex =
+            (animationState.current.currentTextIndex + 1) % texts.length;
           animateText();
         }, currentText.length * speeds.clear + speeds.delay);
-        timeouts.push(nextTimeout);
+        animationState.current.timeouts.push(nextTimeout);
       };
 
       typeText();
     };
 
-    animateText();
+    if (!animationState.current.isAnimating) {
+      animationState.current.isAnimating = true;
+      animateText();
+    }
 
+    // Cleanup function
     return () => {
-      timeouts.forEach((timeout) => clearTimeout(timeout));
-      animationRef.current.timeouts = [];
+      clearAllTimeouts();
+      animationState.current.isAnimating = false;
+      animationState.current.currentTextIndex = 0;
     };
-  }, [
-    texts,
-    fontSize,
-    textcolor,
-    displayCaret,
-    caretChar,
-    caretRef,
-    canvasRef,
-    canvasWidth,
-  ]);
+  }, [texts, fontSize, textcolor, caretChar, canvasWidth]);
 
   return (
-    <span style={{ display: "flex", position: "relative", width: canvasWidth }}>
+    <span
+      style={{
+        display: "flex",
+        position: "relative",
+        width: canvasWidth,
+      }}
+    >
       <canvas
         ref={canvasRef}
         width={canvasWidth}
@@ -124,12 +141,12 @@ const TextCanvas = ({
           <span
             ref={caretRef}
             style={{
-              fontSize: `${fontSize}px`,
+              fontSize: `${fontSize + 1}px`,
               color: textcolor,
               fontWeight: "bold",
               position: "absolute",
               left: "0",
-              animation: "blink 1s step-end infinite",
+              animation: `${isTyping && "blink 1s step-end infinite"}`,
             }}
           >
             {caretChar}
